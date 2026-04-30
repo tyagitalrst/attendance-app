@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  INCOMPLETE
+  LEAVE
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String
+  phoneNumber String?  @map("phone_number")
+  photoUrl    String?  @map("photo_url")
+  position    String?  @map("position")
+  role        Role     @default(EMPLOYEE)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  attendances Attendance[]
+
+  @@map("users")
+}
+
+model Attendance {
+  id         Int              @id @default(autoincrement())
+  userId     Int              @map("user_id")
+  clockInAt  DateTime         @map("clock_in_at")
+  clockOutAt DateTime?        @map("clock_out_at")
+  date       DateTime         @db.Date
+  status     AttendanceStatus @default(PRESENT)
+  remark     String?
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([date])
+  @@map("attendances")
+}

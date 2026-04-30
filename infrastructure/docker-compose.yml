@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  # Database for app data (users, attendance)
+  postgres-main:
+    image: postgres:16
+    container_name: attendance-postgres-main
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: attendance
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_main_data:/var/lib/postgresql/data
+
+  # Database for event logs (audit trail)
+  postgres-logs:
+    image: postgres:16
+    container_name: attendance-postgres-logs
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: event_logs
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_logs_data:/var/lib/postgresql/data
+
+  # Message broker for inter-service events
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: attendance-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: devpassword
+    ports:
+      - "5672:5672" # AMQP protocol port
+      - "15672:15672" # Management UI port
+
+volumes:
+  postgres_main_data:
+  postgres_logs_data:

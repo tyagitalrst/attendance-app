@@ -19,11 +19,4 @@ export class AuthController {
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('user')
-  getUser(@CurrentUser() user: User) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return user;
-  }
 }

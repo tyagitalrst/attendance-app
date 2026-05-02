@@ -63,7 +63,7 @@ export class AttendanceService {
       userId: newAttendance.userId,
       userName: newAttendance.user.name,
       userEmail: newAttendance.user.email,
-      clockedInAt: newAttendance.clockInAt,
+      clockInAt: newAttendance.clockInAt,
       status: newAttendance.status,
     });
 
@@ -107,7 +107,7 @@ export class AttendanceService {
       userId: updatedAttendance.userId,
       userName: updatedAttendance.user.name,
       userEmail: updatedAttendance.user.email,
-      clockedInAt: updatedAttendance.clockOutAt,
+      clockOutAt: updatedAttendance.clockOutAt,
     });
 
     return updatedAttendance;

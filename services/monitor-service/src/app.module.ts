@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserIdentityModule } from './user-identity/user-identity.module';
 import { AdminModule } from './admin/admin.module';
 import { EventsModule } from './events/events.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { EventsModule } from './events/events.module';
     UserIdentityModule,
     AdminModule,
     EventsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

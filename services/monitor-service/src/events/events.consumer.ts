@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { EVENTS_EXCHANGE } from './events.constants';
+import { NotificationsService } from '../notifications/notifications.service';
 
 interface EventPayload<T = unknown> {
   type: string;
@@ -12,6 +13,8 @@ interface EventPayload<T = unknown> {
 export class EventsConsumer {
   private readonly logger = new Logger(EventsConsumer.name);
 
+  constructor(private readonly notificationsService: NotificationsService) {}
+
   @RabbitSubscribe({
     exchange: EVENTS_EXCHANGE,
     routingKey: 'user.*',
@@ -21,18 +24,33 @@ export class EventsConsumer {
     this.logger.log(`Received event ${payload.type} at ${payload.occurredAt}`);
     this.logger.log(`Data: ${JSON.stringify(payload.data)}`);
 
-    switch (payload.type) {
-      case 'user.clocked_in':
-        // TO DO: notify admin
-        break;
-      case 'user.clocked_out':
-        // TO DO: notify admin
-        break;
-      case 'user.created':
-      case 'user.updated':
-      case 'user.deleted':
-        // TO DO: notify admin
-        break;
+    const notification = this.buildNotification(payload);
+    if (!notification) return;
+
+    await this.notificationsService.notifyAdmins(notification);
+  }
+
+  private buildNotification(payload: EventPayload<any>) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { type, data } = payload;
+
+    /**
+     * Create the notification
+     * based on type
+     */
+    switch (type) {
+      case 'user.profile_updated':
+        return {
+          title: 'Profile Updated',
+          body: `${data.userName} updated: ${(data.changedFields ?? []).join(', ')}`,
+          data: {
+            eventType: type,
+            userId: String(data.userId),
+          },
+        };
+
+      default:
+        return null;
     }
   }
 }

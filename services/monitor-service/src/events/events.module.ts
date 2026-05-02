@@ -4,6 +4,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { EventsConsumer } from './events.consumer';
 import { EventsService } from './events.service';
 import { EVENTS_EXCHANGE } from './events.constants';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { EVENTS_EXCHANGE } from './events.constants';
         connectionInitOptions: { wait: false },
       }),
     }),
+    NotificationsModule,
   ],
   providers: [EventsConsumer, EventsService],
   exports: [EventsService],

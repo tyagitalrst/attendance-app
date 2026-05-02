@@ -84,33 +84,12 @@ export class AttendanceService {
     });
   }
 
-  async getUserAttendanceHistory(userId: number, query: QueryAttendanceDto) {
+  async getAttendanceList(userId: number, query: QueryAttendanceDto) {
     const dateFilter = this.buildDateFilter(query);
 
     return this.prisma.attendance.findMany({
       where: { userId, ...(dateFilter && { date: dateFilter }) },
       orderBy: { date: 'desc' },
-    });
-  }
-
-  async getAttendanceHistory(query: QueryAttendanceDto) {
-    const dateFilter = this.buildDateFilter(query);
-
-    return this.prisma.attendance.findMany({
-      where: {
-        ...(dateFilter && { date: dateFilter }),
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            position: true,
-          },
-        },
-      },
-      orderBy: [{ date: 'desc' }, { clockInAt: 'desc' }],
     });
   }
 

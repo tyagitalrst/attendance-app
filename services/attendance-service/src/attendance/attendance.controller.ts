@@ -15,7 +15,7 @@ import { ClockOutDto } from './dto/clock-out.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { QueryAttendanceDto } from './dto/query-attendance.dto';
 
-@Controller('attendance')
+@Controller('attendances')
 @UseGuards(JwtAuthGuard)
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
@@ -30,11 +30,11 @@ export class AttendanceController {
     return this.attendanceService.clockOut(user.id, dto);
   }
 
-  @Get('histories')
-  getAttendanceHistory(
+  @Get()
+  getAttendanceList(
     @CurrentUser() user: User,
     @Query() query: QueryAttendanceDto,
   ) {
-    return this.attendanceService.getUserAttendanceHistory(user.id, query);
+    return this.attendanceService.getAttendanceList(user.id, query);
   }
 }

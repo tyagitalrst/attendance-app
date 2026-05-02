@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AdminAttendanceController } from './admin-attendance.controller';
 import { AttendanceController } from './attendance.controller';
 import { AttendanceService } from './attendance.service';
 import { ConfigModule } from '@nestjs/config';
@@ -8,7 +7,7 @@ import { UserIdentityModule } from '../user-identity/user-identity.module';
 
 @Module({
   imports: [ConfigModule, AuthModule, UserIdentityModule],
-  controllers: [AttendanceController, AdminAttendanceController],
+  controllers: [AttendanceController],
   providers: [AttendanceService],
 })
 export class AttendanceModule {}

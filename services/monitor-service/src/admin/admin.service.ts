@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryAttendanceDto } from './dto/query-attendance.dto';
 import { toZonedTime } from 'date-fns-tz';
 import { ConfigService } from '@nestjs/config';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class AdminService {
@@ -19,6 +20,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly eventsService: EventsService,
   ) {
     this.businessTimezone =
       this.configService.get<string>('BUSINESS_TIMEZONE') ?? 'UTC';
@@ -77,6 +79,13 @@ export class AdminService {
       select: this.userFields(),
     });
 
+    await this.eventsService.publish('user.created', {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    });
+
     return user;
   }
 
@@ -94,21 +103,36 @@ export class AdminService {
       }
     }
 
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: dto,
       select: this.userFields(),
     });
+
+    await this.eventsService.publish('user.updated', {
+      userId: user.id,
+      changes: dto,
+    });
+
+    return user;
   }
 
   async deleteUser(id: number) {
     // Check user
-    await this.getUser(id);
+    const user = await this.getUser(id);
 
-    return this.prisma.user.delete({
+    await this.prisma.user.delete({
       where: { id },
       select: { id: true },
     });
+
+    await this.eventsService.publish('user.deleted', {
+      userId: id,
+      name: user.name,
+      email: user.email,
+    });
+
+    return { id };
   }
 
   async getAttendanceList(query: QueryAttendanceDto) {

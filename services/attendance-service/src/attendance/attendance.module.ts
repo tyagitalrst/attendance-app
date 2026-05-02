@@ -4,9 +4,10 @@ import { AttendanceService } from './attendance.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
 import { UserIdentityModule } from '../user-identity/user-identity.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [ConfigModule, AuthModule, UserIdentityModule],
+  imports: [ConfigModule, AuthModule, UserIdentityModule, EventsModule],
   controllers: [AttendanceController],
   providers: [AttendanceService],
 })

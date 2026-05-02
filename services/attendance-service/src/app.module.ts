@@ -6,6 +6,7 @@ import { PrismaModule } from 'prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserIdentityModule } from './user-identity/user-identity.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AttendanceModule } from './attendance/attendance.module';
     AuthModule,
     UserIdentityModule,
     AttendanceModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

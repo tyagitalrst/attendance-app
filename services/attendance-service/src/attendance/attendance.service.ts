@@ -6,6 +6,7 @@ import { ClockOutDto } from './dto/clock-out.dto';
 import { QueryAttendanceDto } from './dto/query-attendance.dto';
 import { ConfigService } from '@nestjs/config';
 import { toZonedTime } from 'date-fns-tz';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class AttendanceService {
@@ -15,6 +16,7 @@ export class AttendanceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly eventsService: EventsService,
   ) {
     this.businessTimezone =
       this.configService.get<string>('BUSINESS_TIMEZONE') ?? 'UTC';
@@ -43,7 +45,7 @@ export class AttendanceService {
         ? AttendanceStatus.PRESENT
         : AttendanceStatus.LATE;
 
-    return this.prisma.attendance.create({
+    const newAttendance = await this.prisma.attendance.create({
       data: {
         userId,
         clockInAt: now,
@@ -51,7 +53,21 @@ export class AttendanceService {
         status,
         remark: dto.remark,
       },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
     });
+
+    await this.eventsService.publish('user.clocked_in', {
+      attendanceId: newAttendance.id,
+      userId: newAttendance.userId,
+      userName: newAttendance.user.name,
+      userEmail: newAttendance.user.email,
+      clockedInAt: newAttendance.clockInAt,
+      status: newAttendance.status,
+    });
+
+    return newAttendance;
   }
 
   async clockOut(userId: number, dto: ClockOutDto) {
@@ -75,13 +91,26 @@ export class AttendanceService {
       throw new BadRequestException('You have already clocked out today');
     }
 
-    return this.prisma.attendance.update({
+    const updatedAttendance = await this.prisma.attendance.update({
       where: { id: attendance.id },
       data: {
         clockOutAt: new Date(),
         remark: dto.remark ?? attendance.remark,
       },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
     });
+
+    await this.eventsService.publish('user.clocked_out', {
+      attendanceId: updatedAttendance.id,
+      userId: updatedAttendance.userId,
+      userName: updatedAttendance.user.name,
+      userEmail: updatedAttendance.user.email,
+      clockedInAt: updatedAttendance.clockOutAt,
+    });
+
+    return updatedAttendance;
   }
 
   async getAttendanceList(userId: number, query: QueryAttendanceDto) {

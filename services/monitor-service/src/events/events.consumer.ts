@@ -4,7 +4,7 @@ import { EVENTS_EXCHANGE } from './events.constants';
 
 interface EventPayload<T = unknown> {
   type: string;
-  occuredAt: string;
+  occurredAt: string;
   data: T;
 }
 
@@ -18,7 +18,7 @@ export class EventsConsumer {
     queue: 'monitor.user-events',
   })
   async handleUserEvents(payload: EventPayload) {
-    this.logger.log(`Received event ${payload.type} at ${payload.occuredAt}`);
+    this.logger.log(`Received event ${payload.type} at ${payload.occurredAt}`);
     this.logger.log(`Data: ${JSON.stringify(payload.data)}`);
 
     switch (payload.type) {

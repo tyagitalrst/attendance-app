@@ -172,13 +172,13 @@ export class AdminService {
   }
 
   private buildDateFilter(query: QueryAttendanceDto) {
-    if (!query.startDate && !query.end_date) {
+    if (!query.startDate && !query.endDate) {
       return undefined;
     }
 
     const filter: { gte?: Date; lte?: Date } = {};
     if (query.startDate) filter.gte = this.getBusinessDate(query.startDate);
-    if (query.end_date) filter.lte = this.getBusinessDate(query.end_date);
+    if (query.endDate) filter.lte = this.getBusinessDate(query.endDate);
 
     return filter;
   }

@@ -7,5 +7,5 @@ export class QueryAttendanceDto {
 
   @IsOptional()
   @IsDateString()
-  end_date?: string;
+  endDate?: string;
 }

@@ -4,7 +4,7 @@ import { EVENTS_EXCHANGE } from './events.constants';
 
 interface EventPayload<T = unknown> {
   type: string;
-  occuredAt: string;
+  occurredAt: string;
   data: T;
 }
 
@@ -17,7 +17,7 @@ export class EventsService {
   async publish<T>(routingKey: string, data: T) {
     const payload: EventPayload<T> = {
       type: routingKey,
-      occuredAt: new Date().toISOString(),
+      occurredAt: new Date().toISOString(),
       data,
     };
 

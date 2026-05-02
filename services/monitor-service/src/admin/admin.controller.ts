@@ -7,6 +7,7 @@ import {
   Post,
   Body,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { AdminOnly } from '../user-identity/decorators/admin-only.decorator';
 import { AdminService } from './admin.service';
@@ -41,6 +42,11 @@ export class AdminController {
     @Body() dto: UpdateUserDto,
   ) {
     return this.adminService.updateUser(id, dto);
+  }
+
+  @Delete('users/:id')
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.deleteUser(id);
   }
 
   @Get('attendances')

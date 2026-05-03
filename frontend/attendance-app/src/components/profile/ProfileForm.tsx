@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { User } from "../../types/user";
 import * as authApi from "../../api/auth";
 import { PasswordInput } from "../common/PasswordInput";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import * as adminApi from "../../api/admin";
 import type { Role } from "../../types/user";
 import { PasswordInput } from "../common/PasswordInput";

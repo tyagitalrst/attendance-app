@@ -2,8 +2,8 @@
 
 A microservices-based attendance tracking system with role-based access, event-driven architecture, and real-time admin notifications.
 
-You can access the attendance application in here: [https://attendance-app-tyagitalrst-projects.vercel.app/](https://attendance-app-tyagitalrst-projects.vercel.app/)
-And application for monitoring employee, you can access in here: [https://monitoring-app-tyagitalrst-projects.vercel.app/](https://monitoring-app-tyagitalrst-projects.vercel.app/)
+- Attendance application in here: [https://attendance-app-tyagitalrst-projects.vercel.app/](https://attendance-app-tyagitalrst-projects.vercel.app/)
+- Monitoring employee application in here: [https://monitoring-app-tyagitalrst-projects.vercel.app/](https://monitoring-app-tyagitalrst-projects.vercel.app/)
 
 ## Architecture
 

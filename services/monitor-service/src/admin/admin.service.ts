@@ -90,7 +90,6 @@ export class AdminService {
   }
 
   async updateUser(id: number, dto: UpdateUserDto) {
-    // Check user
     await this.getUser(id);
 
     if (dto.email) {
@@ -103,9 +102,15 @@ export class AdminService {
       }
     }
 
+    const { password, ...rest } = dto;
+    const data = {
+      ...rest,
+      ...(password && { password: await bcrypt.hash(password, 10) }),
+    };
+
     const user = await this.prisma.user.update({
       where: { id },
-      data: dto,
+      data,
       select: this.userFields(),
     });
 

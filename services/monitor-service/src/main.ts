@@ -14,6 +14,15 @@ async function bootstrap() {
     }),
   );
 
+  const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : ['http://localhost:5173', 'http://localhost:5174'];
+
+  app.enableCors({
+    origin: corsOrigins,
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT ?? 3001);
 }
-bootstrap();
+void bootstrap();

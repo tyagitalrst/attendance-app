@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserIdentityModule } from './user-identity/user-identity.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { EventsModule } from './events/events.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

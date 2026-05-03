@@ -14,7 +14,7 @@ interface AdminNotification {
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
   private adminTopic: string = '';
-  private initialize = false;
+  private initialized = false;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -50,7 +50,7 @@ export class NotificationsService implements OnModuleInit {
         credential: admin.credential.cert(serviceAccount),
       });
 
-      this.initialize = true;
+      this.initialized = true;
       this.logger.log('Firebase Admin SDK installed');
     } catch (err) {
       this.logger.error('Failed to initialize Firebase Admin', err);
@@ -58,7 +58,7 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async notifyAdmins(notification: AdminNotification) {
-    if (!this.initialize) {
+    if (!this.initialized) {
       this.logger.warn(
         `Skipping notification (FCM not initialized): ${notification.title}`,
       );
@@ -88,6 +88,20 @@ export class NotificationsService implements OnModuleInit {
         `Failed to send notification: ${notification.title}`,
         err,
       );
+    }
+  }
+
+  async subscribeAdminToTopic(fcmToken: string) {
+    if (!this.initialized) {
+      this.logger.warn('Cannot subscribe: FCM is not initialized');
+      return;
+    }
+
+    try {
+      await admin.messaging().subscribeToTopic([fcmToken], this.adminTopic);
+      this.logger.log(`Subscribe token to ${this.adminTopic}`);
+    } catch (err) {
+      this.logger.error('Failed to subscribe token', err);
     }
   }
 }

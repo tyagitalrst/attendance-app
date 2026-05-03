@@ -1,4 +1,4 @@
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useNotifications } from "../firebase/useNotifications";
 import { Toaster } from "react-hot-toast";
@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
 
   // Activate Firebase notifications

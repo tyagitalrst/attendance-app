@@ -142,6 +142,32 @@ attendance-app/
 | ├── attendance-app/ # Vite + React, port 5173
 | └── monitoring-app/ # Vite + React, port 5174
 
+## Deployment
+
+The production stack uses **Render** (backends), **Supabase** (databases), **CloudAMQP** (RabbitMQ), and **Vercel** (frontends) — all on free tiers.
+
+### Infrastructure (provision first)
+
+| Service           | Provider                           | Notes                                        |
+| ----------------- | ---------------------------------- | -------------------------------------------- |
+| PostgreSQL (main) | [Supabase](https://supabase.com)   | Used by attendance-service + monitor-service |
+| PostgreSQL (logs) | [Supabase](https://supabase.com)   | Used by logger-service only                  |
+| RabbitMQ          | [CloudAMQP](https://cloudamqp.com) | Free "Little Lemur" plan                     |
+
+> **Supabase connection**: Use the **Session pooler** URL (not Direct connection) — Render's free tier is IPv4-only.
+
+### Render Free Tier — Known Limitations
+
+| # | Limitation | Impact |
+|---|-----------|--------|
+| 1 | **Cold starts** — services spin down after ~15 min of inactivity | First request after idle takes 30–60 s to wake up |
+| 2 | **750 free hours/month shared** across all services | 3 backend services × 24 h = exceeds free quota; services may be paused |
+| 3 | **No persistent disk** on free tier | Cannot store uploaded files locally; must use external storage (S3, Cloudinary) |
+| 4 | **IPv4-only** — no outbound IPv6 | Must use Session Pooler on Supabase instead of Direct connection |
+| 5 | **Auto-deploy on every push** | Can burn build minutes quickly on active branches |
+| 6 | **512 MB RAM / shared CPU** | Not suitable for CPU-heavy or memory-intensive workloads |
+
+
 ## Future Improvements
 
 - **Object storage** (S3/Cloudinary) for profile photos instead of URL-only

@@ -114,7 +114,7 @@ cd frontend/monitoring-app && npm run dev              # :5174
 | monitor    | `POST /admin/users`             | Create employee (any role)    |
 | monitor    | `PATCH /admin/users/:id`        | Update employee               |
 | monitor    | `DELETE /admin/users/:id`       | Delete employee               |
-| monitor    | `GET /admin/attendance`         | All records                   |
+| monitor    | `GET /admin/attendances`         | All records                   |
 | monitor    | `POST /notifications/subscribe` | Subscribe FCM token           |
 | logger     | `GET /logs`                     | Audit trail (admin only)      |
 

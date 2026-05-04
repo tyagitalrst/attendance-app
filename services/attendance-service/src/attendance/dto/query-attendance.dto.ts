@@ -1,4 +1,5 @@
-import { IsDateString, IsOptional } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class QueryAttendanceDto {
   @IsOptional()
@@ -8,4 +9,16 @@ export class QueryAttendanceDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageNo?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageSize?: number;
 }

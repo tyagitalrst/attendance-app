@@ -15,8 +15,14 @@ export class QueryLogDto {
   endDate?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
+  pageNo?: number;
+
+  @IsOptional()
   @Type(() => Number)
-  limit?: number;
+  @IsInt()
+  @Min(1)
+  pageSize?: number;
 }

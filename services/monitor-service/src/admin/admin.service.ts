@@ -4,6 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { QueryUserDto } from './dto/query-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -27,19 +28,42 @@ export class AdminService {
   }
 
   async getUserList(query: QueryUserDto) {
-    return this.prisma.user.findMany({
-      where: {
-        ...(query.searchKeyword && {
-          OR: [
-            { name: { contains: query.searchKeyword, mode: 'insensitive' } },
-            { email: { contains: query.searchKeyword, mode: 'insensitive' } },
-          ],
-        }),
-        ...(query.role && { role: query.role }),
-      },
-      select: this.userFields(),
-      orderBy: { createdAt: 'desc' },
-    });
+    const where = {
+      ...(query.searchKeyword && {
+        OR: [
+          {
+            name: {
+              contains: query.searchKeyword,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            email: {
+              contains: query.searchKeyword,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      }),
+      ...(query.role && { role: query.role }),
+    };
+
+    const pageNo = query.pageNo ?? 1;
+    const pageSize = query.pageSize ?? 10;
+    const skip = (pageNo - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        select: this.userFields(),
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return { data, totalRecords: total, pageNo, pageSize };
   }
 
   async getUser(id: number) {
@@ -142,24 +166,36 @@ export class AdminService {
 
   async getAttendanceList(query: QueryAttendanceDto) {
     const dateFilter = this.buildDateFilter(query);
+    const where = {
+      ...(query.userId && { userId: query.userId }),
+      ...(dateFilter && { date: dateFilter }),
+    };
 
-    return this.prisma.attendance.findMany({
-      where: {
-        ...(query.userId && { userId: query.userId }),
-        ...(dateFilter && { date: dateFilter }),
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            position: true,
+    const pageNo = query.pageNo ?? 1;
+    const pageSize = query.pageSize ?? 10;
+    const skip = (pageNo - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.attendance.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              position: true,
+            },
           },
         },
-      },
-      orderBy: [{ date: 'desc' }, { clockInAt: 'desc' }],
-    });
+        orderBy: [{ date: 'desc' }, { clockInAt: 'desc' }],
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.attendance.count({ where }),
+    ]);
+
+    return { data, totalRecords: total, pageNo, pageSize };
   }
 
   private userFields() {

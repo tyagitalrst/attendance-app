@@ -7,24 +7,37 @@ export class LogsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getLogs(query: QueryLogDto) {
-    const limit = query.limit ?? 50;
+    const where = {
+      ...(query.eventType && { eventType: query.eventType }),
+      ...(query.startDate || query.endDate
+        ? {
+            occurredAt: {
+              ...(query.startDate && { gte: new Date(query.startDate) }),
+              ...(query.endDate && { lte: new Date(query.endDate) }),
+            },
+          }
+        : {}),
+    };
 
-    const logs = await this.prisma.eventLog.findMany({
-      where: {
-        ...(query.eventType && { eventType: query.eventType }),
-        ...(query.startDate || query.endDate
-          ? {
-              occurredAt: {
-                ...(query.startDate && { gte: new Date(query.startDate) }),
-                ...(query.endDate && { lte: new Date(query.endDate) }),
-              },
-            }
-          : {}),
-      },
-      orderBy: { occurredAt: 'desc' },
-      take: limit,
-    });
+    const pageNo = query.pageNo ?? 1;
+    const pageSize = query.pageSize ?? 10;
+    const skip = (pageNo - 1) * pageSize;
 
-    return logs.map((log) => ({ ...log, id: log.id.toString() }));
+    const [logs, total] = await Promise.all([
+      this.prisma.eventLog.findMany({
+        where,
+        orderBy: { occurredAt: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.eventLog.count({ where }),
+    ]);
+
+    return {
+      data: logs.map((log) => ({ ...log, id: log.id.toString() })),
+      totalRecords: total,
+      pageNo,
+      pageSize,
+    };
   }
 }

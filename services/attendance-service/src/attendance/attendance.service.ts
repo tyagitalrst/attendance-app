@@ -115,11 +115,23 @@ export class AttendanceService {
 
   async getAttendanceList(userId: number, query: QueryAttendanceDto) {
     const dateFilter = this.buildDateFilter(query);
+    const where = { userId, ...(dateFilter && { date: dateFilter }) };
 
-    return this.prisma.attendance.findMany({
-      where: { userId, ...(dateFilter && { date: dateFilter }) },
-      orderBy: { date: 'desc' },
-    });
+    const pageNo = query.pageNo ?? 1;
+    const pageSize = query.pageSize ?? 10;
+    const skip = (pageNo - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.attendance.findMany({
+        where,
+        orderBy: { date: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.attendance.count({ where }),
+    ]);
+
+    return { data, totalRecords: total, pageNo, pageSize };
   }
 
   private buildDateFilter(query: QueryAttendanceDto) {

@@ -4,12 +4,18 @@ import type { Attendance, FilterAttendance } from "../../types/attendance";
 import { Spinner } from "../common/Spinner";
 import { formatDate, formatTime } from "../../utils/date";
 import { statusColor } from "../../utils/statusColor";
+import { Paginator } from "../common/Paginator";
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   records: (Attendance & { user?: any })[];
   loading: boolean;
+  totalRecords: number;
+  pageNo: number;
+  pageSize: number;
   onFilterChange: (filter: FilterAttendance) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
 function currentMonthRange() {
@@ -20,7 +26,16 @@ function currentMonthRange() {
   };
 }
 
-export function AttendanceTable({ records, loading, onFilterChange }: Props) {
+export function AttendanceTable({
+  records,
+  loading,
+  totalRecords,
+  pageNo,
+  pageSize,
+  onFilterChange,
+  onPageChange,
+  onPageSizeChange,
+}: Props) {
   const { start, end } = currentMonthRange();
   const [startDate, setStartDate] = useState(start);
   const [endDate, setEndDate] = useState(end);
@@ -96,52 +111,64 @@ export function AttendanceTable({ records, loading, onFilterChange }: Props) {
         </div>
       </div>
 
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-left text-gray-500">
-          <tr>
-            <th className="px-4 py-3">Employee</th>
-            <th className="px-4 py-3">Date</th>
-            <th className="px-4 py-3">Clock In</th>
-            <th className="px-4 py-3">Clock Out</th>
-            <th className="px-4 py-3">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-160 text-sm">
+          <thead className="bg-gray-50 text-left text-gray-500">
             <tr>
-              <td colSpan={5} className="flex justify-center p-4 text-center">
-                <Spinner />
-              </td>
+              <th className="px-4 py-3">Employee</th>
+              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Clock In</th>
+              <th className="px-4 py-3">Clock Out</th>
+              <th className="px-4 py-3">Status</th>
             </tr>
-          ) : records.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="p-4 text-center text-gray-500">
-                No records found.
-              </td>
-            </tr>
-          ) : (
-            records.map((r) => (
-              <tr key={r.id} className="border-t">
-                <td className="px-4 py-3 font-medium">
-                  {r.user?.name ?? `User #${r.userId}`}
-                </td>
-                <td className="px-4 py-3">{formatDate(r.date)}</td>
-                <td className="px-4 py-3">{formatTime(r.clockInAt)}</td>
-                <td className="px-4 py-3">
-                  {r.clockOutAt ? formatTime(r.clockOutAt) : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded px-2 py-0.5 text-xs ${statusColor(r.status)}`}
-                  >
-                    {r.status}
-                  </span>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="p-4 text-center">
+                  <div className="flex justify-center">
+                    <Spinner />
+                  </div>
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : records.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="p-4 text-center text-gray-500">
+                  No records found.
+                </td>
+              </tr>
+            ) : (
+              records.map((r) => (
+                <tr key={r.id} className="border-t">
+                  <td className="px-4 py-3 font-medium">
+                    {r.user?.name ?? `User #${r.userId}`}
+                  </td>
+                  <td className="px-4 py-3">{formatDate(r.date)}</td>
+                  <td className="px-4 py-3">{formatTime(r.clockInAt)}</td>
+                  <td className="px-4 py-3">
+                    {r.clockOutAt ? formatTime(r.clockOutAt) : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs ${statusColor(r.status)}`}
+                    >
+                      {r.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <Paginator
+        pageNo={pageNo}
+        pageSize={pageSize}
+        totalRecords={totalRecords}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import type { FilterPagination } from "./general";
+
 export type AttendanceStatus =
   | "PRESENT"
   | "LATE"
@@ -20,7 +22,7 @@ export interface AttendanceRequest {
   remark?: string;
 }
 
-export interface FilterAttendance {
+export interface FilterAttendance extends FilterPagination {
   startDate?: string;
   endDate?: string;
   userId?: string;

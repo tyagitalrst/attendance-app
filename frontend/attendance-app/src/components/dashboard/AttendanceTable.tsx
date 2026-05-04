@@ -3,10 +3,16 @@ import { format, startOfMonth, endOfMonth } from "date-fns";
 import type { Attendance, FilterAttendance } from "../../types/attendance";
 import { formatDate, formatTime } from "../../utils/date";
 import { statusColor } from "../../utils/statusColor";
+import { Paginator } from "../common/Paginator";
 
 interface Props {
   attendances: Attendance[];
+  totalRecords: number;
+  pageNo: number;
+  pageSize: number;
   onFilterChange: (filter: FilterAttendance) => Promise<void>;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
 function currentMonthRange() {
@@ -17,7 +23,15 @@ function currentMonthRange() {
   };
 }
 
-export function AttendanceTable({ attendances, onFilterChange }: Props) {
+export function AttendanceTable({
+  attendances,
+  totalRecords,
+  pageNo,
+  pageSize,
+  onFilterChange,
+  onPageChange,
+  onPageSizeChange,
+}: Props) {
   const { start, end } = currentMonthRange();
   const [startDate, setStartDate] = useState(start);
   const [endDate, setEndDate] = useState(end);
@@ -96,33 +110,45 @@ export function AttendanceTable({ attendances, onFilterChange }: Props) {
       {attendances.length === 0 ? (
         <p className="text-gray-500">No records found.</p>
       ) : (
-        <table className="w-full text-sm">
-          <thead className="border-b text-left text-gray-500">
-            <tr>
-              <th className="pb-2">Date</th>
-              <th className="pb-2">Clock In</th>
-              <th className="pb-2">Clock Out</th>
-              <th className="pb-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendances.map((r) => (
-              <tr key={r.id} className="border-b last:border-0">
-                <td className="py-2">{formatDate(r.date)}</td>
-                <td className="py-2">{formatTime(r.clockInAt)}</td>
-                <td className="py-2">
-                  {r.clockOutAt ? formatTime(r.clockOutAt) : "—"}
-                </td>
-                <td className="py-2">
-                  <span className={`rounded px-2 py-0.5 text-xs ${statusColor(r.status)}`}>
-                    {r.status}
-                  </span>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-120 text-sm">
+            <thead className="border-b text-left text-gray-500">
+              <tr>
+                <th className="pb-2">Date</th>
+                <th className="pb-2">Clock In</th>
+                <th className="pb-2">Clock Out</th>
+                <th className="pb-2">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {attendances.map((r) => (
+                <tr key={r.id} className="border-b last:border-0">
+                  <td className="py-2">{formatDate(r.date)}</td>
+                  <td className="py-2">{formatTime(r.clockInAt)}</td>
+                  <td className="py-2">
+                    {r.clockOutAt ? formatTime(r.clockOutAt) : "—"}
+                  </td>
+                  <td className="py-2">
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs ${statusColor(r.status)}`}
+                    >
+                      {r.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+
+      <Paginator
+        pageNo={pageNo}
+        pageSize={pageSize}
+        totalRecords={totalRecords}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </div>
   );
 }

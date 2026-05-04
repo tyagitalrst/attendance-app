@@ -1,12 +1,18 @@
 import type { User } from "../../types/user";
 import { Spinner } from "../common/Spinner";
+import { Paginator } from "../common/Paginator";
 
 interface Props {
   users: User[];
   loading: boolean;
+  totalRecords: number;
+  pageNo: number;
+  pageSize: number;
   search: string;
   onSearchChange: (value: string) => void;
   onSearch: () => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
 }
@@ -14,9 +20,14 @@ interface Props {
 export function UsersTable({
   users,
   loading,
+  totalRecords,
+  pageNo,
+  pageSize,
   search,
   onSearchChange,
   onSearch,
+  onPageChange,
+  onPageSizeChange,
   onEdit,
   onDelete,
 }: Props) {
@@ -44,90 +55,100 @@ export function UsersTable({
       </div>
 
       <div className="overflow-hidden rounded-lg bg-white shadow">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Phone Number</th>
-              <th className="px-4 py-3">Position</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-180 text-sm">
+            <thead className="bg-gray-50 text-left text-gray-500">
               <tr>
-                <td colSpan={6} className="p-4 text-center">
-                  <div className="flex justify-center">
-                    <Spinner />
-                  </div>
-                </td>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone Number</th>
+                <th className="px-4 py-3">Position</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Actions</th>
               </tr>
-            ) : users.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-500">
-                  No users found
-                </td>
-              </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.id} className="border-t">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {u.photoUrl ? (
-                        <img
-                          src={u.photoUrl}
-                          alt={u.name}
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
-                          <span className="text-sm font-semibold text-orange-600">
-                            {u.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <span className="font-medium">{u.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {u.phoneNumber ?? "-"}
-                  </td>
-                  <td className="px-4 py-3">{u.position ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded px-2 py-0.5 text-sm ${
-                        u.role === "ADMIN"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {getRoleLabel(u.role)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => onEdit(u)}
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(u)}
-                        className="text-sm text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-4 text-center">
+                    <div className="flex justify-center">
+                      <Spinner />
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-4 text-center text-gray-500">
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id} className="border-t">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {u.photoUrl ? (
+                          <img
+                            src={u.photoUrl}
+                            alt={u.name}
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
+                            <span className="text-sm font-semibold text-orange-600">
+                              {u.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <span className="font-medium">{u.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {u.phoneNumber ?? "-"}
+                    </td>
+                    <td className="px-4 py-3">{u.position ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded px-2 py-0.5 text-sm ${
+                          u.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {getRoleLabel(u.role)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => onEdit(u)}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onDelete(u)}
+                          className="text-sm text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <Paginator
+          pageNo={pageNo}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       </div>
     </>
   );

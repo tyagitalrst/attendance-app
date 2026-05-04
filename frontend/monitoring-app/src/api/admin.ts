@@ -6,11 +6,15 @@ import type {
   AdminUpdateUserRequest,
 } from "../types/user";
 import type { Attendance, FilterAttendance } from "../types/attendance";
+import type { PaginatedResponse } from "../types/general";
 
-export async function getUsers(filters?: FilterUser): Promise<User[]> {
-  const { data } = await monitorClient.get<User[]>("admin/users", {
-    params: filters,
-  });
+export async function getUsers(
+  params: FilterUser = {},
+): Promise<PaginatedResponse<User>> {
+  const { data } = await monitorClient.get<PaginatedResponse<User>>(
+    "admin/users",
+    { params },
+  );
   return data;
 }
 
@@ -40,10 +44,11 @@ export async function deleteUser(id: number) {
 }
 
 export async function getAttendances(
-  filters?: FilterAttendance,
-): Promise<Attendance[]> {
-  const { data } = await monitorClient.get<Attendance[]>("admin/attendances", {
-    params: filters,
-  });
+  params: FilterAttendance = {},
+): Promise<PaginatedResponse<Attendance>> {
+  const { data } = await monitorClient.get<PaginatedResponse<Attendance>>(
+    "admin/attendances",
+    { params },
+  );
   return data;
 }

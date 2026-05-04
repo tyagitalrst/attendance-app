@@ -4,6 +4,7 @@ import type {
   AttendanceRequest,
   FilterAttendance,
 } from "../types/attendance";
+import type { PaginatedResponse } from "../types/general";
 
 export async function clockIn(
   payload?: AttendanceRequest,
@@ -26,10 +27,11 @@ export async function clockOut(
 }
 
 export async function getAttendances(
-  filters?: FilterAttendance,
-): Promise<Attendance[]> {
-  const { data } = await apiClient.get<Attendance[]>("attendances", {
-    params: filters,
-  });
+  params: FilterAttendance = {},
+): Promise<PaginatedResponse<Attendance>> {
+  const { data } = await apiClient.get<PaginatedResponse<Attendance>>(
+    "attendances",
+    { params },
+  );
   return data;
 }

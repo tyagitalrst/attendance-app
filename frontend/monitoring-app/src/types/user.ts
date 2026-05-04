@@ -1,3 +1,5 @@
+import type { FilterPagination } from "./general";
+
 export type Role = "EMPLOYEE" | "ADMIN";
 
 export interface User {
@@ -18,7 +20,7 @@ export interface UpdateUserRequest {
   photoUrl?: string;
 }
 
-export interface FilterUser {
+export interface FilterUser extends FilterPagination {
   role?: string;
   searchKeyword?: string;
 }

@@ -22,8 +22,9 @@ export function HomePage() {
         startDate: format(now, "yyyy-MM-dd"),
         endDate: format(now, "yyyy-MM-dd"),
       });
+      const todayRecord = records?.data[0];
 
-      setToday(records[0] ?? null);
+      setToday(todayRecord ?? null);
     } catch {
       setError("Failed to load attendances");
     } finally {
